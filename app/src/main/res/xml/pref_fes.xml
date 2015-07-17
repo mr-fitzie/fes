@@ -1,0 +1,50 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/pref_header_fes">
+        <EditTextPreference
+            android:defaultValue="@string/pref_default_fes_name"
+            android:inputType="text"
+            android:key="pref_fes_name"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_fes_name" />
+
+        <EditTextPreference
+            android:defaultValue="@string/pref_default_fes_id"
+            android:inputType="number"
+            android:key="pref_fes_id"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_fes_id" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_header_site">
+        <ListPreference
+            android:defaultValue="@string/pref_default_site_chain"
+            android:entries="@array/pref_site_chain_titles"
+            android:entryValues="@array/pref_site_chain_titles"
+            android:key="pref_site_chain"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="@string/pref_title_site_chain" />
+
+        <EditTextPreference
+            android:defaultValue="@string/pref_default_site_store"
+            android:inputType="number"
+            android:key="pref_site_store"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_site_store" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_header_data_sync">
+        <ListPreference
+            android:defaultValue="180"
+            android:entries="@array/pref_sync_frequency_titles"
+            android:entryValues="@array/pref_sync_frequency_values"
+            android:key="pref_sync_frequency"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="@string/pref_title_sync_frequency" />
+    </PreferenceCategory>
+</PreferenceScreen>

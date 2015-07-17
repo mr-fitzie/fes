@@ -1,0 +1,48 @@
+<resources>
+    <!-- Strings related to Settings -->
+
+    <!-- FES settings -->
+    <string name="pref_header_fes">Field Energy Specialist</string>
+
+    <string name="pref_title_fes_name">Full Name</string>
+    <string name="pref_default_fes_name">John Smith</string>
+
+    <string name="pref_title_fes_id">Id</string>
+    <string name="pref_default_fes_id">123456</string>
+
+    <!-- Site settings -->
+    <string name="pref_header_site">Site</string>
+
+    <string name="pref_title_site_chain">Chain</string>
+    <string name="pref_default_site_chain">Home Depot</string>
+    <string-array name="pref_site_chain_titles">
+        <item>Home Depot</item>
+        <item>Best Buy</item>
+        <item>Other - Enter Chain with Store Number</item>
+    </string-array>
+
+    <string name="pref_title_site_store">Store Number</string>
+    <string name="pref_default_site_store">1234</string>
+
+    <!-- Data & Sync -->
+    <string name="pref_header_data_sync">Data &amp; Sync</string>
+
+    <string name="pref_title_sync_frequency">Sync frequency</string>
+    <string-array name="pref_sync_frequency_titles">
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>3 hours</item>
+        <item>6 hours</item>
+        <item>Never</item>
+    </string-array>
+    <string-array name="pref_sync_frequency_values">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>180</item>
+        <item>360</item>
+        <item>-1</item>
+    </string-array>
+
+</resources>
