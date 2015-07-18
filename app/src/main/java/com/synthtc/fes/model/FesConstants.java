@@ -18,7 +18,7 @@ package com.synthtc.fes.model;
 
 /**
  * FES Related Constants
- *
+ * <p/>
  * Created by Chris Fitzpatrick on 7/3/2015.
  */
 public class FesConstants {
@@ -36,14 +36,15 @@ public class FesConstants {
     public static final String PREF_FES_ID = "pref_fes_id";
     public static final String PREF_SITE_CHAIN = "pref_site_chain";
     public static final String PREF_SITE_STORE = "pref_site_store";
-    public static final String PREF_SYNC_FREQUENCEY = "pref_sync_frequency";
 
+    // Parse Keys
     public static final String PARSE_OBJ_NAME = "FesTrack";
-    public static final String PARSE_NAME = "name";
-    public static final String PARSE_ID = "id";
+    public static final String PARSE_NAME = "fesName";
+    public static final String PARSE_ID = "fesId";
     public static final String PARSE_DATE = "date";
     public static final String PARSE_SITE_CHAIN = "siteChain";
     public static final String PARSE_SITE_STORE = "siteStore";
+    public static final String PARSE_TALLY_TOTAL = "tallyTotal";
     public static final String PARSE_TALLIES = "tallies";
     public static final String PARSE_NOTES = "notes";
 

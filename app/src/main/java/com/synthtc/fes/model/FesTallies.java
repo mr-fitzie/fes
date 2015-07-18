@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2015 Chris Fitzpatrick
  *
@@ -21,8 +20,8 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 /**
- * Fes Tallies Object for JSON/GSON
- *
+ * Fes Tallies Object for Parse
+ * <p/>
  * Created by Chris Fitzpatrick on 7/3/2015.
  */
 public class FesTallies {

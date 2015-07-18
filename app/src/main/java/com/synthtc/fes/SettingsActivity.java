@@ -24,6 +24,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.AppCompatCheckedTextView;
@@ -33,8 +34,6 @@ import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 
 import com.synthtc.fes.model.FesConstants;
 
@@ -128,7 +127,7 @@ public class SettingsActivity extends AppCompatActivity {
      * Hat tip: http://stackoverflow.com/a/27455330
      */
     @Override
-    public View onCreateView(String name, Context context, AttributeSet attrs) {
+    public View onCreateView(String name, @NonNull Context context, @NonNull AttributeSet attrs) {
         // Allow super to try and create a view first
         final View result = super.onCreateView(name, context, attrs);
         if (result != null) {
@@ -174,8 +173,6 @@ public class SettingsActivity extends AppCompatActivity {
 
             bindPreferenceSummaryToValue(findPreference(FesConstants.PREF_SITE_CHAIN));
             bindPreferenceSummaryToValue(findPreference(FesConstants.PREF_SITE_STORE));
-
-            bindPreferenceSummaryToValue(findPreference(FesConstants.PREF_SYNC_FREQUENCEY));
         }
     }
 }

@@ -27,7 +27,7 @@ import android.widget.TextView;
 
 /**
  * Tally Fragment
- *
+ * <p/>
  * Created by Chris Fitzpatrick on 7/3/2015.
  */
 public class TallyFragment extends Fragment {
@@ -64,8 +64,7 @@ public class TallyFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_tally, container, false);
 
         TextView description = (TextView) view.findViewById(R.id.tally_description);

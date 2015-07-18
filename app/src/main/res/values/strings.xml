@@ -1,7 +1,11 @@
 <resources>
     <string name="app_name">FES</string>
+
     <string name="action_settings">Settings</string>
-    <string name="action_sync">Cloud Upload Coming Soon</string>
+    <string name="action_sync">Uploading to Cloud</string>
+    <string name="action_upload_success">Cloud Upload Successful</string>
+    <string name="action_upload_failure">Cloud Upload Failure</string>
+    <string name="action_upload_retry">Retry</string>
 
     <string name="tally_total">Total Contacts</string>
     <string name="tally_date_default">07–02–2015</string>
@@ -15,4 +19,8 @@
     <string name="tally_desc_dq_not_ho">DQ / Not Homeowner</string>
     <string name="tally_desc_phone_lead">Phone Call Lead</string>
     <string name="tally_desc_won_opp">Won Opportunity</string>
+
+    <string name="alert_default_pref_title">Default Settings Found</string>
+    <string name="alert_default_pref_message">Please fill out the settings on the following screen before using to make sure your activities are properly recorded.</string>
+    <string name="alert_default_pref_action">Go to Settings</string>
 </resources>

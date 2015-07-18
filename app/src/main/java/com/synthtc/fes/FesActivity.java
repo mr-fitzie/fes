@@ -16,50 +16,93 @@
 
 package com.synthtc.fes;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.parse.FindCallback;
+import com.parse.ParseAnalytics;
+import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.SaveCallback;
 import com.synthtc.fes.model.FesConstants;
+
+import org.joda.time.DateTime;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Main Activity
- *
+ * <p/>
  * Created by Chris Fitzpatrick on 7/3/2015.
  */
-public class FesActivity extends AppCompatActivity implements TallyFragment.OnTallyChangedListener {
-    private static final String PARSE_OBJ_NAME = "FesTrack";
+public class FesActivity extends AppCompatActivity implements TallyFragment.OnTallyChangedListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
+    private static final String LOGTAG = "FesActivity";
     private TextView mTvTallyTotal;
-    private HashMap<String, Integer> mTallyTotals = new HashMap<>(5);
+    private ParseObject mParseObject;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fes);
 
-        ParseObject testObject = new ParseObject("TestObject");
-        testObject.put("foo", "bar");
-        testObject.saveInBackground();
+        final Activity activity = this;
+
+        final NestedScrollView nestedScrollView = (NestedScrollView) findViewById(R.id.nested_scroll);
+
+        ParseAnalytics.trackAppOpenedInBackground(getIntent());
+
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery(FesConstants.PARSE_OBJ_NAME);
+        query.whereGreaterThan(FesConstants.PARSE_DATE, DateTime.now().withTimeAtStartOfDay().toDate());
+        query.fromLocalDatastore();
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> list, ParseException e) {
+                if (e == null && !list.isEmpty()) {
+                    mParseObject = list.get(0);
+                } else {
+                    mParseObject = new ParseObject(FesConstants.PARSE_OBJ_NAME);
+                    mParseObject.put(FesConstants.PARSE_NAME, sharedPreferences.getString(FesConstants.PREF_FES_NAME, getString(R.string.pref_default_fes_name)));
+                    String id = sharedPreferences.getString(FesConstants.PREF_FES_ID, getString(R.string.pref_default_fes_id));
+                    mParseObject.put(FesConstants.PARSE_ID, Integer.parseInt(id));
+                    mParseObject.put(FesConstants.PARSE_SITE_CHAIN, sharedPreferences.getString(FesConstants.PREF_SITE_CHAIN, getString(R.string.pref_default_site_chain)));
+                    mParseObject.put(FesConstants.PARSE_SITE_STORE, sharedPreferences.getString(FesConstants.PREF_SITE_STORE, getString(R.string.pref_default_site_store)));
+                    mParseObject.put(FesConstants.PARSE_DATE, DateTime.now().toDate());
+                }
+                setupTallies();
+            }
+        });
 
         setupToolbar();
-        setupTallies();
 
         TextView date = (TextView) findViewById(R.id.date);
         DateFormat df = SimpleDateFormat.getDateInstance();
@@ -70,10 +113,12 @@ public class FesActivity extends AppCompatActivity implements TallyFragment.OnTa
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                Snackbar.make(view, getString(R.string.action_sync), Snackbar.LENGTH_LONG).show();
+            public void onClick(View v) {
+                upload(v);
             }
         });
+
+        checkSetPreferences(sharedPreferences);
     }
 
     @Override
@@ -101,6 +146,52 @@ public class FesActivity extends AppCompatActivity implements TallyFragment.OnTa
         return super.onOptionsItemSelected(item);
     }
 
+    private void checkSetPreferences(SharedPreferences sharedPreferences) {
+        String defaultName = getString(R.string.pref_default_fes_name);
+        String defaultId = getString(R.string.pref_default_fes_id);
+        String defaultSiteChain = getString(R.string.pref_default_site_chain);
+        String defaultSiteStore = getString(R.string.pref_default_site_store);
+        String prefName = sharedPreferences.getString(FesConstants.PREF_FES_NAME, defaultName);
+        String prefId = sharedPreferences.getString(FesConstants.PREF_FES_ID, defaultName);
+        String prefSiteChain = sharedPreferences.getString(FesConstants.PREF_SITE_CHAIN, defaultSiteChain);
+        String prefSiteStore = sharedPreferences.getString(FesConstants.PREF_SITE_STORE, defaultSiteStore);
+
+        if (defaultName.equals(prefName) || defaultId.equals(prefId) || (defaultSiteChain.equals(prefSiteChain) && defaultSiteStore.equals(prefSiteStore))) {
+            new AlertDialog.Builder(this)
+                    .setCancelable(false)
+                    .setTitle(R.string.alert_default_pref_title)
+                    .setMessage(R.string.alert_default_pref_message)
+                    .setPositiveButton(R.string.alert_default_pref_action, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+                            startActivity(intent);
+                        }
+                    })
+                    .show();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mParseObject != null) {
+            try {
+                updateNotes();
+                mParseObject.pin();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+        super.onDestroy();
+    }
+
     private void setupToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -118,67 +209,127 @@ public class FesActivity extends AppCompatActivity implements TallyFragment.OnTa
     private void setupTallies() {
         FragmentManager manager = getSupportFragmentManager();
 
+        JSONObject tallies = mParseObject.getJSONObject(FesConstants.PARSE_TALLIES);
+
+        SparseArray<String> tallySparse = new SparseArray<>(5);
+        tallySparse.put(R.string.tally_desc_greeted_no_eng, FesConstants.TALLY_GREETED_NO_ENG);
+        tallySparse.put(R.string.tally_desc_not_interested, FesConstants.TALLY_NO_INTEREST);
+        tallySparse.put(R.string.tally_desc_dq_not_ho, FesConstants.TALLY_DQ_NOT_HO);
+        tallySparse.put(R.string.tally_desc_phone_lead, FesConstants.TALLY_PHONE_LEAD);
+        tallySparse.put(R.string.tally_desc_won_opp, FesConstants.TALLY_WON_OPP);
+
+        for (int i = 0; i < tallySparse.size(); i++) {
+            int key = tallySparse.keyAt(i);
+            String name = tallySparse.get(key);
+
+            Bundle args = new Bundle();
+            if (tallies != null) {
+                int tally = tallies.optInt(name, 0);
+                args.putInt(TallyFragment.ARG_COUNT, tally);
+            }
+            args.putString(TallyFragment.ARG_DESCRIPTION, getString(key));
+            TallyFragment tallyFragment = new TallyFragment();
+            tallyFragment.setArguments(args);
+            manager.beginTransaction().add(R.id.tally_layout, tallyFragment, name).commit();
+        }
+
+        // Setup Notes Fragment
         Bundle args = new Bundle();
-        Integer integer = mTallyTotals.get(FesConstants.TALLY_GREETED_NO_ENG);
-        if (integer != null) {
-            args.putInt(TallyFragment.ARG_COUNT, mTallyTotals.get(FesConstants.TALLY_GREETED_NO_ENG));
+        if (mParseObject.has(FesConstants.PARSE_NOTES)) {
+            args.putString(NotesFragment.ARG_NOTES, mParseObject.getString(FesConstants.PARSE_NOTES));
         }
-        args.putString(TallyFragment.ARG_DESCRIPTION, getString(R.string.tally_desc_greeted_no_eng));
-        TallyFragment tallyFragment = new TallyFragment();
-        tallyFragment.setArguments(args);
-        manager.beginTransaction().add(R.id.tally_layout, tallyFragment, FesConstants.TALLY_GREETED_NO_ENG).commit();
-
-        args = new Bundle();
-        integer = mTallyTotals.get(FesConstants.TALLY_NO_INTEREST);
-        if (integer != null) {
-            args.putInt(TallyFragment.ARG_COUNT, mTallyTotals.get(FesConstants.TALLY_NO_INTEREST));
-        }
-        args.putString(TallyFragment.ARG_DESCRIPTION, getString(R.string.tally_desc_not_interested));
-        tallyFragment = new TallyFragment();
-        tallyFragment.setArguments(args);
-        manager.beginTransaction().add(R.id.tally_layout, tallyFragment, FesConstants.TALLY_NO_INTEREST).commit();
-
-        args = new Bundle();
-        integer = mTallyTotals.get(FesConstants.TALLY_DQ_NOT_HO);
-        if (integer != null) {
-            args.putInt(TallyFragment.ARG_COUNT, mTallyTotals.get(FesConstants.TALLY_DQ_NOT_HO));
-        }
-        args.putString(TallyFragment.ARG_DESCRIPTION, getString(R.string.tally_desc_dq_not_ho));
-        tallyFragment = new TallyFragment();
-        tallyFragment.setArguments(args);
-        manager.beginTransaction().add(R.id.tally_layout, tallyFragment, FesConstants.TALLY_DQ_NOT_HO).commit();
-
-        args = new Bundle();
-        integer = mTallyTotals.get(FesConstants.TALLY_PHONE_LEAD);
-        if (integer != null) {
-            args.putInt(TallyFragment.ARG_COUNT, mTallyTotals.get(FesConstants.TALLY_PHONE_LEAD));
-        }
-        args.putString(TallyFragment.ARG_DESCRIPTION, getString(R.string.tally_desc_phone_lead));
-        tallyFragment = new TallyFragment();
-        tallyFragment.setArguments(args);
-        manager.beginTransaction().add(R.id.tally_layout, tallyFragment, FesConstants.TALLY_PHONE_LEAD).commit();
-
-        args = new Bundle();
-        integer = mTallyTotals.get(FesConstants.TALLY_WON_OPP);
-        if (integer != null) {
-            args.putInt(TallyFragment.ARG_COUNT, mTallyTotals.get(FesConstants.TALLY_WON_OPP));
-        }
-        args.putString(TallyFragment.ARG_DESCRIPTION, getString(R.string.tally_desc_won_opp));
-        tallyFragment = new TallyFragment();
-        tallyFragment.setArguments(args);
-        manager.beginTransaction().add(R.id.tally_layout, tallyFragment, FesConstants.TALLY_WON_OPP).commit();
-
         NotesFragment notesFragment = new NotesFragment();
+        notesFragment.setArguments(args);
         manager.beginTransaction().add(R.id.tally_layout, notesFragment, FesConstants.DAILY_NOTES).commit();
+
+        // Setup Total
+        if (mParseObject.has(FesConstants.PARSE_TALLY_TOTAL)) {
+            mTvTallyTotal.setText(String.valueOf(mParseObject.get(FesConstants.PARSE_TALLY_TOTAL)));
+        }
+    }
+
+    private void updateNotes() {
+        if (mParseObject != null) {
+            FragmentManager manager = getSupportFragmentManager();
+            NotesFragment notesFragment = (NotesFragment) manager.findFragmentByTag(FesConstants.DAILY_NOTES);
+            if (notesFragment != null) {
+                mParseObject.put(FesConstants.PARSE_NOTES, notesFragment.getNotes());
+            }
+        }
+    }
+
+    private void upload(final View view) {
+        if (mParseObject != null) {
+            updateNotes();
+            mParseObject.saveEventually(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    if (e == null) {
+                        Snackbar.make(view, R.string.action_upload_success, Snackbar.LENGTH_SHORT).show();
+                    } else {
+                        Snackbar.make(view, R.string.action_upload_failure, Snackbar.LENGTH_SHORT).setAction(R.string.action_upload_retry, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                upload(view);
+                            }
+                        }).show();
+                    }
+                }
+            });
+        }
+        Snackbar.make(view, R.string.action_sync, Snackbar.LENGTH_LONG).show();
     }
 
     @Override
     public void onTallyChanged(String tag, int newCount) {
-        mTallyTotals.put(tag, newCount);
-        int total = 0;
-        for (Integer count : mTallyTotals.values()) {
-            total += count;
+        try {
+            // Save the new value
+            JSONObject tallies = mParseObject.getJSONObject(FesConstants.PARSE_TALLIES);
+            if (tallies == null) {
+                tallies = new JSONObject();
+            }
+            tallies.put(tag, newCount);
+
+            // Calculate new Total
+            int total = 0;
+            Iterator<String> it = tallies.keys();
+            while (it.hasNext()) {
+                String key = it.next();
+                int count = tallies.getInt(key);
+                total += count;
+            }
+
+            // Update Parse Object
+            mParseObject.put(FesConstants.PARSE_TALLIES, tallies);
+            mParseObject.put(FesConstants.PARSE_TALLY_TOTAL, total);
+            mParseObject.pinInBackground();
+
+            // Update the UI
+            mTvTallyTotal.setText(String.valueOf(total));
+        } catch (JSONException e) {
+            Log.w(LOGTAG, "Could not update tally: " + tag + " count: " + newCount, e);
         }
-        mTvTallyTotal.setText(String.valueOf(total));
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (mParseObject != null) {
+            switch (key) {
+                case FesConstants.PREF_FES_NAME:
+                    mParseObject.put(FesConstants.PARSE_NAME, sharedPreferences.getString(key, getString(R.string.pref_default_fes_name)));
+                    break;
+                case FesConstants.PREF_FES_ID:
+                    String id = sharedPreferences.getString(key, getString(R.string.pref_default_fes_id));
+                    mParseObject.put(FesConstants.PARSE_ID, Integer.parseInt(id));
+                    break;
+                case FesConstants.PREF_SITE_CHAIN:
+                    mParseObject.put(FesConstants.PARSE_SITE_CHAIN, sharedPreferences.getString(key, getString(R.string.pref_default_site_chain)));
+                    break;
+                case FesConstants.PREF_SITE_STORE:
+                    mParseObject.put(FesConstants.PARSE_SITE_STORE, sharedPreferences.getString(key, getString(R.string.pref_default_site_store)));
+                    break;
+            }
+            mParseObject.pinInBackground();
+        }
     }
 }

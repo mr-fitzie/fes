@@ -13,8 +13,8 @@
             android:id="@+id/notes"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:minLines="3"
-            android:hint="@string/notes_hint" />
+            android:hint="@string/notes_hint"
+            android:minLines="3" />
 
     </android.support.design.widget.TextInputLayout>
 

@@ -23,18 +23,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
+import com.synthtc.fes.model.FesConstants;
+
 /**
  * Notes Fragment
- *
+ * <p/>
  * Created by Chris Fitzpatrick on 7/3/2015.
  */
 public class NotesFragment extends Fragment {
+    public static final String ARG_NOTES = FesConstants.PARSE_NOTES;
+
     private EditText mNotes;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_notes, container, false);
         mNotes = (EditText) view.findViewById(R.id.notes);
+        if (getArguments() != null) {
+            mNotes.setText(getArguments().getString(ARG_NOTES));
+        }
         return view;
     }
 
