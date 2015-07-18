@@ -22,6 +22,8 @@ import com.parse.Parse;
 import com.parse.ParseCrashReporting;
 
 /**
+ * FES Application
+ * <p/>
  * Created by Chris on 7/17/2015.
  */
 public class FesApplication extends Application {
