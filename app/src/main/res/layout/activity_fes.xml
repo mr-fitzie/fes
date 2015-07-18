@@ -1,6 +1,5 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
@@ -39,59 +38,15 @@
         android:id="@+id/nested_scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_gravity="fill_vertical"
+        android:layout_marginBottom="?attr/actionBarSize"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:id="@+id/tally_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <fragment
-                style="@style/Widget.CardLayout"
-                class="com.synthtc.fes.TallyFragment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:tag="tally_greeted_no_eng" />
-
-            <fragment
-                style="@style/Widget.CardLayout"
-                class="com.synthtc.fes.TallyFragment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:tag="tally_no_interest" />
-
-            <fragment
-                style="@style/Widget.CardLayout"
-                class="com.synthtc.fes.TallyFragment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:tag="tally_dq_not_ho" />
-
-            <fragment
-                style="@style/Widget.CardLayout"
-                class="com.synthtc.fes.TallyFragment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:tag="tally_phone_lead"
-                tools:layout="@layout/fragment_tally" />
-
-            <fragment
-                style="@style/Widget.CardLayout"
-                class="com.synthtc.fes.TallyFragment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:tag="tally_won_opp"
-                tools:layout="@layout/fragment_tally" />
-
-            <fragment
-                style="@style/Widget.CardLayout"
-                class="com.synthtc.fes.NotesFragment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:tag="daily_notes"
-                tools:layout="@layout/fragment_notes" />
-        </LinearLayout>
+            android:orientation="vertical" />
 
     </android.support.v4.widget.NestedScrollView>
 

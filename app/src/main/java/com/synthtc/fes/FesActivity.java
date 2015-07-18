@@ -16,7 +16,6 @@
 
 package com.synthtc.fes;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -27,7 +26,6 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -71,10 +69,6 @@ public class FesActivity extends AppCompatActivity implements TallyFragment.OnTa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fes);
-
-        final Activity activity = this;
-
-        final NestedScrollView nestedScrollView = (NestedScrollView) findViewById(R.id.nested_scroll);
 
         ParseAnalytics.trackAppOpenedInBackground(getIntent());
 
