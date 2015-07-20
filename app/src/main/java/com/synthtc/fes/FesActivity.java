@@ -30,7 +30,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -205,26 +204,26 @@ public class FesActivity extends AppCompatActivity implements TallyFragment.OnTa
 
         JSONObject tallies = mParseObject.getJSONObject(FesConstants.PARSE_TALLIES);
 
-        SparseArray<String> tallySparse = new SparseArray<>(5);
-        tallySparse.put(R.string.tally_desc_greeted_no_eng, FesConstants.TALLY_GREETED_NO_ENG);
-        tallySparse.put(R.string.tally_desc_not_interested, FesConstants.TALLY_NO_INTEREST);
-        tallySparse.put(R.string.tally_desc_dq_not_ho, FesConstants.TALLY_DQ_NOT_HO);
-        tallySparse.put(R.string.tally_desc_phone_lead, FesConstants.TALLY_PHONE_LEAD);
-        tallySparse.put(R.string.tally_desc_won_opp, FesConstants.TALLY_WON_OPP);
+        String[][] tallyArray = new String[][]{
+                {FesConstants.TALLY_GREETED_NO_ENG, getString(R.string.tally_desc_greeted_no_eng)},
+                {FesConstants.TALLY_NO_INTEREST, getString(R.string.tally_desc_not_interested)},
+                {FesConstants.TALLY_DQ_NOT_HO, getString(R.string.tally_desc_dq_not_ho)},
+                {FesConstants.TALLY_PHONE_LEAD, getString(R.string.tally_desc_phone_lead)},
+                {FesConstants.TALLY_WON_OPP, getString(R.string.tally_desc_won_opp)}};
 
-        for (int i = 0; i < tallySparse.size(); i++) {
-            int key = tallySparse.keyAt(i);
-            String name = tallySparse.get(key);
+        for (String[] entry : tallyArray) {
+            String tag = entry[0];
+            String desc = entry[1];
 
             Bundle args = new Bundle();
             if (tallies != null) {
-                int tally = tallies.optInt(name, 0);
+                int tally = tallies.optInt(tag, 0);
                 args.putInt(TallyFragment.ARG_COUNT, tally);
             }
-            args.putString(TallyFragment.ARG_DESCRIPTION, getString(key));
+            args.putString(TallyFragment.ARG_DESCRIPTION, desc);
             TallyFragment tallyFragment = new TallyFragment();
             tallyFragment.setArguments(args);
-            manager.beginTransaction().add(R.id.tally_layout, tallyFragment, name).commit();
+            manager.beginTransaction().add(R.id.tally_layout, tallyFragment, tag).commit();
         }
 
         // Setup Notes Fragment
